@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {CharacterService} from '../../../service/character.service';
 import {FormControl, FormGroup} from '@angular/forms';
 import {ExportService} from '../../../service/export.service';
-import {Character, CharacterModel} from '../../../model/character.model';
+import {ImportService} from '../../../service/import.service';
 
 @Component({
   selector: 'main-form',
@@ -22,7 +22,11 @@ export class MainFormComponent implements OnInit {
 
   formGroup: FormGroup;
 
-  constructor(private characterService: CharacterService, private exportService: ExportService) {
+  constructor(
+    private characterService: CharacterService,
+    private exportService: ExportService,
+    private importService: ImportService
+  ) {
   }
 
   ngOnInit() {
@@ -40,24 +44,11 @@ export class MainFormComponent implements OnInit {
   }
 
   import() {
-    const inputNode: any = document.querySelector('#file');
-
-    if (typeof (FileReader) !== 'undefined') {
-      const reader = new FileReader();
-
-      reader.onload = (e: any) => {
-        this.loadCharacter(reader.result.toString());
-      };
-
-      reader.readAsText(inputNode.files[0]);
-    }
+    this.importService.import();
+    this.loadCharacter();
   }
 
-  private loadCharacter(serialized: string): void {
-    let parsed: CharacterModel = JSON.parse(serialized);
-    let character = new Character(parsed);
-    this.characterService.character = character;
-
-    this.characterNameControl.setValue(character.name);
+  private loadCharacter(): void {
+    this.characterNameControl.setValue(this.characterService.character.name);
   }
 }
